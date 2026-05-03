@@ -1,0 +1,240 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Shadow Proxy</title>
+    <script src="https://cdn.jsdelivr.net/npm/ultraviolet@0.7.0/umd/ultraviolet.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            color: #0f0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: #0f0;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            transition: all 0.5s ease;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #0f0;
+        }
+        
+        #urlInput {
+            width: 70%;
+            padding: 15px;
+            font-size: 18px;
+            background: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        button {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #0a0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        
+        #homeBtn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: none;
+        }
+        
+        #proxyFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles"></div>
+    
+    <div id="homeBtn" onclick="goHome()">
+        <button>HOME</button>
+    </div>
+    
+    <div class="container" id="mainContainer">
+        <h1>GREEN SHADOW PROXY</h1>
+        <input type="text" id="urlInput" placeholder="Enter URL (e.g. https://example.com)">
+        <button onclick="navigate()">GO</button>
+    </div>
+    
+    <iframe id="proxyFrame"></iframe>
+    
+    <script>
+        const uv = new Ultraviolet('https://217.76.245.80/uv/');
+        const particles = [];
+        const particleCount = 100;
+        
+        // Create particles
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            document.getElementById('particles').appendChild(particle);
+            particles.push({
+                element: particle,
+                x: parseFloat(particle.style.left),
+                y: parseFloat(particle.style.top),
+                vx: Math.random() * 2 - 1,
+                vy: Math.random() * 2 - 1
+            });
+        }
+        
+        // Particle animation
+        function updateParticles() {
+            const mouseX = mousePos.x;
+            const mouseY = mousePos.y;
+            
+            particles.forEach(p => {
+                // Move particle
+                p.x += p.vx * 0.1;
+                p.y += p.vy * 0.1;
+                
+                // Mouse repulsion
+                const dx = p.x - mouseX;
+                const dy = p.y - mouseY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 100) {
+                    const force = (100 - dist) / 100;
+                    p.vx += (dx / dist) * force * 0.2;
+                    p.vy += (dy / dist) * force * 0.2;
+                }
+                
+                // Boundary check
+                if (p.x < 0 || p.x > 100) p.vx *= -1;
+                if (p.y < 0 || p.y > 100) p.vy *= -1;
+                
+                // Update position
+                p.element.style.left = `${p.x}%`;
+                p.element.style.top = `${p.y}%`;
+            });
+            
+            // Connect particles
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p1 = particles[i];
+                    const p2 = particles[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 10) {
+                        const line = document.createElement('div');
+                        line.style.position = 'absolute';
+                        line.style.width = `${dist}%`;
+                        line.style.height = '1px';
+                        line.style.background = `rgba(0, 255, 0, ${1 - dist/10})`;
+                        line.style.top = `${p1.y}%`;
+                        line.style.left = `${p1.x}%`;
+                        line.style.transformOrigin = '0 0';
+                        line.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+                        document.getElementById('particles').appendChild(line);
+                        
+                        setTimeout(() => {
+                            line.remove();
+                        }, 100);
+                    }
+                }
+            }
+            
+            requestAnimationFrame(updateParticles);
+        }
+        
+        // Mouse tracking
+        const mousePos = { x: 0, y: 0 };
+        document.addEventListener('mousemove', (e) => {
+            mousePos.x = (e.clientX / window.innerWidth) * 100;
+            mousePos.y = (e.clientY / window.innerHeight) * 100;
+        });
+        
+        // Start animation
+        updateParticles();
+        
+        // Navigation functions
+        function navigate() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) return;
+            
+            if (url.includes(' ')) {
+                window.open(`https://duckduckgo.com/?q=${encodeURIComponent(url)}`, '_blank');
+                return;
+            }
+            
+            try {
+                const proxyUrl = uv.navigate(url);
+                document.getElementById('mainContainer').style.transform = 'translateY(-100vh)';
+                document.getElementById('proxyFrame').style.display = 'block';
+                document.getElementById('proxyFrame').src = proxyUrl;
+                document.getElementById('homeBtn').style.display = 'block';
+            } catch (e) {
+                alert('Invalid URL: ' + e.message);
+            }
+        }
+        
+        function goHome() {
+            document.getElementById('mainContainer').style.transform = 'translateY(0)';
+            document.getElementById('proxyFrame').style.display = 'none';
+            document.getElementById('homeBtn').style.display = 'none';
+            document.getElementById('proxyFrame').src = '';
+        }
+        
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                navigate();
+            }
+        });
+    </script>
+</body>
+</html>
+```
