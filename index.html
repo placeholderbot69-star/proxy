@@ -1,239 +1,413 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Shadow Proxy</title>
-    <script src="https://cdn.jsdelivr.net/npm/ultraviolet@0.7.0/umd/ultraviolet.min.js"></script>
+    <title>amongus gxmes</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Courier New', monospace;
-            background-color: #000;
-            color: #0f0;
-            height: 100vh;
+            background-color: #121212;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
             overflow: hidden;
+            height: 100vh;
+        }
+
+        .desktop {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 80px);
+            grid-gap: 20px;
+            padding: 20px;
             position: relative;
+            height: calc(100vh - 40px);
         }
-        
-        #particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+
+        .icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        
+
+        .icon:hover {
+            transform: scale(1.1);
+        }
+
+        .icon-img {
+            width: 50px;
+            height: 50px;
+            background-color: #ff2d2d;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .icon-text {
+            font-size: 12px;
+            text-align: center;
+            color: #fff;
+        }
+
         .particle {
             position: absolute;
             width: 2px;
             height: 2px;
-            background-color: #0f0;
+            background-color: rgba(255, 45, 45, 0.7);
             border-radius: 50%;
             pointer-events: none;
         }
-        
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            transition: all 0.5s ease;
+
+        .connection {
+            position: absolute;
+            height: 1px;
+            background-color: rgba(255, 45, 45, 0.3);
+            transform-origin: 0 0;
+            pointer-events: none;
         }
-        
-        h1 {
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px #0f0;
-        }
-        
-        #urlInput {
-            width: 70%;
-            padding: 15px;
-            font-size: 18px;
-            background: #111;
-            color: #0f0;
-            border: 1px solid #0f0;
-            border-radius: 5px;
-            outline: none;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-        }
-        
-        button {
-            margin-top: 20px;
-            padding: 10px 25px;
-            background: #0f0;
-            color: #000;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: #0a0;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-        }
-        
-        #homeBtn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
+
+        .window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background-color: #1e1e1e;
+            border: 2px solid #ff2d2d;
+            border-radius: 10px;
             display: none;
+            flex-direction: column;
+            overflow: hidden;
         }
-        
-        #proxyFrame {
+
+        .window-header {
+            background-color: #ff2d2d;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .window-title {
+            font-weight: bold;
+        }
+
+        .window-close {
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .window-content {
+            flex: 1;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .proxy-ui {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .proxy-input {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: #2e2e2e;
+            color: #fff;
+        }
+
+        .proxy-button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #ff2d2d;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .back-button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #2e2e2e;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .fullscreen-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            background-color: #ff2d2d;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        iframe {
             width: 100%;
             height: 100%;
             border: none;
+        }
+
+        .hidden {
             display: none;
         }
     </style>
 </head>
 <body>
-    <div id="particles"></div>
-    
-    <div id="homeBtn" onclick="goHome()">
-        <button>HOME</button>
+    <div class="desktop" id="desktop">
+        <div class="icon" onclick="openWindow('games')">
+            <div class="icon-img">🎮</div>
+            <div class="icon-text">Games</div>
+        </div>
+        <div class="icon" onclick="openWindow('movies')">
+            <div class="icon-img">▶️</div>
+            <div class="icon-text">Movies</div>
+        </div>
+        <div class="icon" onclick="openWindow('proxy')">
+            <div class="icon-img">🔍</div>
+            <div class="icon-text">Proxy</div>
+        </div>
+        <div class="icon" onclick="openWindow('settings')">
+            <div class="icon-img">⚙️</div>
+            <div class="icon-text">Settings</div>
+        </div>
     </div>
-    
-    <div class="container" id="mainContainer">
-        <h1>GREEN SHADOW PROXY</h1>
-        <input type="text" id="urlInput" placeholder="Enter URL (e.g. https://example.com)">
-        <button onclick="navigate()">GO</button>
+
+    <div class="window" id="games-window">
+        <div class="window-header">
+            <div class="window-title">Games</div>
+            <div class="window-close" onclick="closeWindow('games')">×</div>
+        </div>
+        <div class="window-content">
+            <iframe src="https://gnmath.global.ssl.fastly.net/" frameborder="0" id="games-frame"></iframe>
+            <button class="fullscreen-button" onclick="toggleFullscreen('games-frame')">Fullscreen</button>
+        </div>
     </div>
-    
-    <iframe id="proxyFrame"></iframe>
-    
+
+    <div class="window" id="movies-window">
+        <div class="window-header">
+            <div class="window-title">Movies</div>
+            <div class="window-close" onclick="closeWindow('movies')">×</div>
+        </div>
+        <div class="window-content">
+            <iframe src="https://toustream.movietrunk.com/" frameborder="0" id="movies-frame"></iframe>
+            <button class="fullscreen-button" onclick="toggleFullscreen('movies-frame')">Fullscreen</button>
+        </div>
+    </div>
+
+    <div class="window" id="proxy-window">
+        <div class="window-header">
+            <div class="window-title">Proxy</div>
+            <div class="window-close" onclick="closeWindow('proxy')">×</div>
+        </div>
+        <div class="window-content">
+            <div class="proxy-ui">
+                <input type="text" class="proxy-input" id="proxy-url" placeholder="Enter URL to proxy...">
+                <button class="proxy-button" onclick="proxyUrl()">Go</button>
+            </div>
+            <button class="back-button hidden" id="back-button" onclick="backToProxy()">Back</button>
+            <iframe src="" frameborder="0" id="proxy-frame" class="hidden"></iframe>
+            <button class="fullscreen-button hidden" id="proxy-fullscreen" onclick="toggleFullscreen('proxy-frame')">Fullscreen</button>
+        </div>
+    </div>
+
+    <div class="window" id="settings-window">
+        <div class="window-header">
+            <div class="window-title">Settings</div>
+            <div class="window-close" onclick="closeWindow('settings')">×</div>
+        </div>
+        <div class="window-content">
+            <h3>Theme Colors</h3>
+            <div>
+                <label>Background: </label>
+                <input type="color" id="bg-color" value="#121212">
+            </div>
+            <div>
+                <label>Accent: </label>
+                <input type="color" id="accent-color" value="#ff2d2d">
+            </div>
+            <button onclick="applyTheme()">Apply</button>
+        </div>
+    </div>
+
     <script>
-        const uv = new Ultraviolet('https://217.76.245.80/uv/');
+        // Particles
         const particles = [];
-        const particleCount = 100;
-        
-        // Create particles
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = `${Math.random() * 100}%`;
-            particle.style.top = `${Math.random() * 100}%`;
-            document.getElementById('particles').appendChild(particle);
-            particles.push({
-                element: particle,
-                x: parseFloat(particle.style.left),
-                y: parseFloat(particle.style.top),
-                vx: Math.random() * 2 - 1,
-                vy: Math.random() * 2 - 1
-            });
+        const connections = [];
+        const maxConnections = 50;
+
+        function createParticles() {
+            const desktop = document.getElementById('desktop');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                desktop.appendChild(particle);
+                particles.push({
+                    element: particle,
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+
+            // Create connections
+            for (let i = 0; i < maxConnections; i++) {
+                const connection = document.createElement('div');
+                connection.className = 'connection';
+                desktop.appendChild(connection);
+                connections.push(connection);
+            }
+
+            animateParticles();
         }
-        
-        // Particle animation
-        function updateParticles() {
-            const mouseX = mousePos.x;
-            const mouseY = mousePos.y;
-            
-            particles.forEach(p => {
-                // Move particle
-                p.x += p.vx * 0.1;
-                p.y += p.vy * 0.1;
-                
-                // Mouse repulsion
-                const dx = p.x - mouseX;
-                const dy = p.y - mouseY;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                
-                if (dist < 100) {
-                    const force = (100 - dist) / 100;
-                    p.vx += (dx / dist) * force * 0.2;
-                    p.vy += (dy / dist) * force * 0.2;
+
+        function animateParticles() {
+            const mouseX = window.mouseX || window.innerWidth / 2;
+            const mouseY = window.mouseY || window.innerHeight / 2;
+
+            particles.forEach((particle, index) => {
+                // Move particles
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+
+                // Bounce off walls
+                if (particle.x < 0 || particle.x > window.innerWidth) particle.vx *= -1;
+                if (particle.y < 0 || particle.y > window.innerHeight) particle.vy *= -1;
+
+                // Avoid mouse
+                const dx = particle.x - mouseX;
+                const dy = particle.y - mouseY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 100) {
+                    const force = 100 / distance;
+                    particle.x += dx * force * 0.01;
+                    particle.y += dy * force * 0.01;
                 }
-                
-                // Boundary check
-                if (p.x < 0 || p.x > 100) p.vx *= -1;
-                if (p.y < 0 || p.y > 100) p.vy *= -1;
-                
-                // Update position
-                p.element.style.left = `${p.x}%`;
-                p.element.style.top = `${p.y}%`;
+
+                particle.element.style.left = `${particle.x}px`;
+                particle.element.style.top = `${particle.y}px`;
             });
-            
-            // Connect particles
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const p1 = particles[i];
-                    const p2 = particles[j];
-                    const dx = p1.x - p2.x;
-                    const dy = p1.y - p2.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (dist < 10) {
-                        const line = document.createElement('div');
-                        line.style.position = 'absolute';
-                        line.style.width = `${dist}%`;
-                        line.style.height = '1px';
-                        line.style.background = `rgba(0, 255, 0, ${1 - dist/10})`;
-                        line.style.top = `${p1.y}%`;
-                        line.style.left = `${p1.x}%`;
-                        line.style.transformOrigin = '0 0';
-                        line.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
-                        document.getElementById('particles').appendChild(line);
-                        
-                        setTimeout(() => {
-                            line.remove();
-                        }, 100);
+
+            // Update connections
+            let connectionIndex = 0;
+            for (let i = 0; i < particles.length && connectionIndex < maxConnections; i++) {
+                for (let j = i + 1; j < particles.length && connectionIndex < maxConnections; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 150) {
+                        const connection = connections[connectionIndex];
+                        connection.style.width = `${distance}px`;
+                        connection.style.left = `${particles[i].x}px`;
+                        connection.style.top = `${particles[i].y}px`;
+                        connection.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+                        connectionIndex++;
                     }
                 }
             }
-            
-            requestAnimationFrame(updateParticles);
+
+            // Hide unused connections
+            for (let i = connectionIndex; i < maxConnections; i++) {
+                connections[i].style.width = '0';
+            }
+
+            requestAnimationFrame(animateParticles);
         }
-        
-        // Mouse tracking
-        const mousePos = { x: 0, y: 0 };
+
+        // Track mouse position
         document.addEventListener('mousemove', (e) => {
-            mousePos.x = (e.clientX / window.innerWidth) * 100;
-            mousePos.y = (e.clientY / window.innerHeight) * 100;
+            window.mouseX = e.clientX;
+            window.mouseY = e.clientY;
         });
-        
-        // Start animation
-        updateParticles();
-        
-        // Navigation functions
-        function navigate() {
-            const urlInput = document.getElementById('urlInput');
-            const url = urlInput.value.trim();
-            
+
+        // Window management
+        function openWindow(type) {
+            document.getElementById(`${type}-window`).style.display = 'flex';
+        }
+
+        function closeWindow(type) {
+            document.getElementById(`${type}-window`).style.display = 'none';
+        }
+
+        // Proxy functionality
+        function proxyUrl() {
+            const url = document.getElementById('proxy-url').value;
             if (!url) return;
-            
-            if (url.includes(' ')) {
-                window.open(`https://duckduckgo.com/?q=${encodeURIComponent(url)}`, '_blank');
-                return;
-            }
-            
-            try {
-                const proxyUrl = uv.navigate(url);
-                document.getElementById('mainContainer').style.transform = 'translateY(-100vh)';
-                document.getElementById('proxyFrame').style.display = 'block';
-                document.getElementById('proxyFrame').src = proxyUrl;
-                document.getElementById('homeBtn').style.display = 'block';
-            } catch (e) {
-                alert('Invalid URL: ' + e.message);
+
+            const frame = document.getElementById('proxy-frame');
+            frame.src = `http://159.203.181.211:9191/${url}`;
+            frame.classList.remove('hidden');
+            document.getElementById('back-button').classList.remove('hidden');
+            document.getElementById('proxy-fullscreen').classList.remove('hidden');
+        }
+
+        function backToProxy() {
+            document.getElementById('proxy-frame').classList.add('hidden');
+            document.getElementById('back-button').classList.add('hidden');
+            document.getElementById('proxy-fullscreen').classList.add('hidden');
+            document.getElementById('proxy-frame').src = '';
+        }
+
+        // Fullscreen functionality
+        function toggleFullscreen(id) {
+            const element = document.getElementById(id);
+            if (!document.fullscreenElement) {
+                element.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
             }
         }
-        
-        function goHome() {
-            document.getElementById('mainContainer').style.transform = 'translateY(0)';
-            document.getElementById('proxyFrame').style.display = 'none';
-            document.getElementById('homeBtn').style.display = 'none';
-            document.getElementById('proxyFrame').src = '';
+
+        // Theme settings
+        function applyTheme() {
+            const bgColor = document.getElementById('bg-color').value;
+            const accentColor = document.getElementById('accent-color').value;
+            document.body.style.backgroundColor = bgColor;
+            document.querySelectorAll('.icon-img, .window-header, .proxy-button, .fullscreen-button').forEach(el => {
+                el.style.backgroundColor = accentColor;
+            });
+            document.querySelectorAll('.connection').forEach(el => {
+                el.style.backgroundColor = `${accentColor}30`;
+            });
+            document.querySelectorAll('.particle').forEach(el => {
+                el.style.backgroundColor = `${accentColor}B0`;
+            });
         }
-        
-        document.getElementById('urlInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                navigate();
-            }
+
+        // Initialize
+        createParticles();
+
+        // Offline functionality
+        window.addEventListener('offline', () => {
+            alert('You are offline. Some features may not work.');
         });
+
+        // Service worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
