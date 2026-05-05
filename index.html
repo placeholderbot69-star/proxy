@@ -5,409 +5,450 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>amongus gxmes</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background-color: #121212;
-            color: #fff;
+            box-sizing: border-box;
             font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #fff;
             overflow: hidden;
             height: 100vh;
+            position: relative;
         }
-
+        
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
         .desktop {
             display: grid;
-            grid-template-columns: repeat(auto-fill, 80px);
+            grid-template-columns: repeat(auto-fill, 100px);
             grid-gap: 20px;
             padding: 20px;
+            z-index: 1;
             position: relative;
-            height: calc(100vh - 40px);
         }
-
-        .icon {
+        
+        .app-icon {
             display: flex;
             flex-direction: column;
             align-items: center;
             cursor: pointer;
+            text-align: center;
             transition: transform 0.2s;
         }
-
-        .icon:hover {
+        
+        .app-icon:hover {
             transform: scale(1.1);
         }
-
-        .icon-img {
-            width: 50px;
-            height: 50px;
-            background-color: #ff2d2d;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        
+        .app-icon img {
+            width: 60px;
+            height: 60px;
             margin-bottom: 5px;
         }
-
-        .icon-text {
+        
+        .app-icon span {
             font-size: 12px;
-            text-align: center;
             color: #fff;
         }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background-color: rgba(255, 45, 45, 0.7);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .connection {
-            position: absolute;
-            height: 1px;
-            background-color: rgba(255, 45, 45, 0.3);
-            transform-origin: 0 0;
-            pointer-events: none;
-        }
-
-        .window {
+        
+        .app-window {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 80%;
             height: 80%;
-            background-color: #1e1e1e;
-            border: 2px solid #ff2d2d;
-            border-radius: 10px;
+            background-color: #1a1a1a;
+            border: 2px solid #ff3333;
+            border-radius: 5px;
+            z-index: 10;
             display: none;
             flex-direction: column;
             overflow: hidden;
         }
-
+        
         .window-header {
-            background-color: #ff2d2d;
-            padding: 8px;
+            background-color: #ff3333;
+            color: white;
+            padding: 5px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: move;
         }
-
+        
         .window-title {
             font-weight: bold;
         }
-
-        .window-close {
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 18px;
         }
-
+        
         .window-content {
-            flex: 1;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
             padding: 10px;
+            background-color: #1a1a1a;
             overflow: auto;
         }
-
+        
         .proxy-ui {
             display: flex;
             margin-bottom: 10px;
         }
-
+        
         .proxy-input {
-            flex: 1;
+            flex-grow: 1;
             padding: 8px;
-            border: none;
-            border-radius: 4px;
-            background-color: #2e2e2e;
-            color: #fff;
+            border: 1px solid #444;
+            background-color: #222;
+            color: white;
         }
-
-        .proxy-button {
-            margin-left: 10px;
+        
+        .proxy-go {
             padding: 8px 15px;
-            background-color: #ff2d2d;
+            background-color: #ff3333;
+            color: white;
             border: none;
-            border-radius: 4px;
-            color: #fff;
             cursor: pointer;
         }
-
-        .back-button {
-            margin-top: 10px;
-            padding: 8px 15px;
-            background-color: #2e2e2e;
+        
+        .proxy-go:hover {
+            background-color: #ff5555;
+        }
+        
+        .proxy-back {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            background-color: #333;
+            color: white;
             border: none;
-            border-radius: 4px;
-            color: #fff;
             cursor: pointer;
         }
-
-        .fullscreen-button {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            padding: 8px 15px;
-            background-color: #ff2d2d;
-            border: none;
-            border-radius: 4px;
-            color: #fff;
-            cursor: pointer;
-        }
-
+        
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            background-color: white;
         }
-
-        .hidden {
-            display: none;
+        
+        .settings-container {
+            padding: 10px;
+        }
+        
+        .settings-option {
+            margin-bottom: 15px;
+        }
+        
+        .settings-option label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .settings-option input {
+            width: 100%;
+            padding: 5px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: white;
+        }
+        
+        .settings-save {
+            padding: 8px 15px;
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="desktop" id="desktop">
-        <div class="icon" onclick="openWindow('games')">
-            <div class="icon-img">🎮</div>
-            <div class="icon-text">Games</div>
+    <div id="particles-js"></div>
+    
+    <div class="desktop">
+        <div class="app-icon" data-app="games">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzM2LjcgMzIwaC03NC42Yy0xLjEgMC0yLjEtLjktMi4xLTJzLjktMiAyLjEtMmg3NC42YzEuMSAwIDIuMS45IDIuMSAycy0uOSAyLTIuMSAyem0tMjA0LjctOTZjMC0xLjEuOS0yIDIuMS0yaDQyLjZjMS4xIDAgMi4xLjkgMi4xIDJzLS45IDItMi4xIDJoLTQyLjZjLTEuMiAwLTIuMS0uOS0yLjEtMnptLTY0LTI0YzAtMS4xLjktMiAyLjEtMmg3NC42YzEuMSAwIDIuMS45IDIuMSAycy0uOSAyLTIuMSAySDcwLjFjLTEuMiAwLTIuMS0uOS0yLjEtMnptMTYwLTEyOGgtMTYwdjMyMGgxNjB2LTMyMHptMzIgMzJoMzJ2MzJoLTMydi0zMnptMC0zMnYzMmgzMnYtMzJoLTMyem0tMzIgMGgzMnYzMmgtMzJ2LTMyem0zMi02NGgzMnYzMmgtMzJ2LTMyem0tMzIgMGgzMnYzMmgtMzJ2LTMyem0zMi0zMmgzMnYzMmgtMzJ2LTMyem0tMzIgMGgzMnYzMmgtMzJ2LTMyem0tMzIgMzJoMzJ2MzJoLTMydi0zMnptMC0zMnYzMmgzMnYtMzJoLTMyem0zMi0zMmgzMnYzMmgtMzJ2LTMyem0tMzIgMGgzMnYzMmgtMzJ2LTMyem0zMi0zMmgzMnYzMmgtMzJ2LTMyem0tMzIgMGgzMnYzMmgtMzJ2LTMyeiIvPjwvc3ZnPg==" alt="Games">
+            <span>Games</span>
         </div>
-        <div class="icon" onclick="openWindow('movies')">
-            <div class="icon-img">▶️</div>
-            <div class="icon-text">Movies</div>
+        
+        <div class="app-icon" data-app="movies">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNDgxLjkgNDQyLjFsLTEzNi44LTYwLjEgMTM2LjgtNjAuMSA3LjktMTcuOS0xODQuNi04MS44LTE4NC42IDgxLjggNy45IDE3LjkgMTM2LjggNjAuMS0xMzYuOCA2MC4xLTcuOSAxNy45IDE4NC42IDgxLjggMTg0LjYtODEuOHoiLz48cGF0aCBmaWxsPSIjZmYzMzMzIiBkPSJNMjU2IDBsLTEwLjQgMjMuOSAxNjMuMiA3Mi42IDEwLjQtMjMuOXoiLz48cGF0aCBmaWxsPSIjZmYzMzMzIiBkPSJNMTAzLjIgOTYuNWwtMTYzLjIgNzIuNiAxMC40IDIzLjkgMTYzLjItNzIuNnoiLz48cGF0aCBmaWxsPSIjZmYzMzMzIiBkPSJNNDA4LjggOTYuNWwtMTAuNC0yMy45LTE2My4yIDcyLjYgMTAuNCAyMy45eiIvPjwvc3ZnPg==" alt="Movies">
+            <span>Movies</span>
         </div>
-        <div class="icon" onclick="openWindow('proxy')">
-            <div class="icon-img">🔍</div>
-            <div class="icon-text">Proxy</div>
+        
+        <div class="app-icon" data-app="proxy">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMjA5IDIwOWMtMTguNyAxOC43LTE4LjcgNDkuMSAwIDY3LjggMTguNyAxOC43IDQ5LjEgMTguNyA2Ny44IDAgMTguNy0xOC43IDE4LjctNDkuMSAwLTY3LjgtMTguNy0xOC43LTQ5LjEtMTguNy02Ny44IDB6bS0xNjYuNSA5LjNjLTM5LjYgMzkuNi0zOS42IDEwMy44IDAgMTQzLjQgMzkuNiAzOS42IDEwMy44IDM5LjYgMTQzLjQgMCAxMy4zLTEzLjMgMTMuMy0zNC45IDAtNDguMi0xMy4zLTEzLjMtMzQuOS0xMy4zLTQ4LjIgMC0yNi4yIDI2LjItMjYuMiA2OC42IDAgOTQuOC0yNi4yIDI2LjItNjguNiAyNi4yLTk0LjggMC0yNi4yLTI2LjItMjYuMi02OC42IDAtMjYuMiAyNi4yLTI2LjIgNjguNiAwIDEzLjMgMTMuMyAzNC45IDEzLjMgNDguMiAwIDEzLjMtMTMuMyAxMy4zLTM0LjkgMC00OC4yLTM5LjYtMzkuNi0xMDMuOC0zOS42LTE0My40IDB6bTMzMSA5LjNjLTM5LjYtMzkuNi0xMDMuOC0zOS42LTE0My40IDAtMzkuNiAzOS42LTM5LjYgMTAzLjggMCAxNDMuNCAxMy4zIDEzLjMgMzQuOSAxMy4zIDQ4LjIgMCAxMy4zLTEzLjMgMTMuMy0zNC45IDAtNDguMiAyNi4yIDI2LjIgMjYuMiA2OC42IDAgOTQuOCAyNi4yLTI2LjIgNjguNi0yNi4yIDk0LjggMCAyNi4yLTI2LjIgNjguNi0yNi4yIDk0LjggMCAyNi4yLTI2LjIgMjYuMi02OC42IDAtMjYuMi0yNi4yLTI2LjItNjguNiAwLTEzLjMtMTMuMy0zNC45LTEzLjMtNDguMiAwLTEzLjMgMTMuMy0xMy4zIDM0LjkgMCAzOS42IDM5LjYgMTAzLjggMzkuNiAxNDMuNCAwIDM5LjYtMzkuNiAzOS42LTEwMy44IDAtMTQzLjR6Ii8+PC9zdmc+" alt="Proxy">
+            <span>Proxy</span>
         </div>
-        <div class="icon" onclick="openWindow('settings')">
-            <div class="icon-img">⚙️</div>
-            <div class="icon-text">Settings</div>
-        </div>
-    </div>
-
-    <div class="window" id="games-window">
-        <div class="window-header">
-            <div class="window-title">Games</div>
-            <div class="window-close" onclick="closeWindow('games')">×</div>
-        </div>
-        <div class="window-content">
-            <iframe src="https://gnmath.global.ssl.fastly.net/" frameborder="0" id="games-frame"></iframe>
-            <button class="fullscreen-button" onclick="toggleFullscreen('games-frame')">Fullscreen</button>
+        
+        <div class="app-icon" data-app="settings">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNNDk0LjQgMzkyLjUtMzkyLjUgNDk0LjRjLTkuMiA5LjItMjQuMyA5LjItMzMuNSAwLTkuMi05LjItOS4yLTI0LjMgMC0zMy41TDQ2MC44IDM1OWM5LjItOS4yIDI0LjMtOS4yIDMzLjUgMCA5LjIgOS4yIDkuMiAyNC4zIDAgMzMuNXptLTMyLjYtMzkuOGMtMjMuNSAyMy41LTYxLjYgMjMuNS04NS4xIDAtMjMuNS0yMy41LTIzLjUtNjEuNiAwLTg1LjEgMjMuNS0yMy41IDYxLjYtMjMuNSA4NS4xIDAgMjMuNSAyMy41IDIzLjUgNjEuNiAwIDg1LjF6TTMwMy4zIDQzLjRjLTkuMi05LjItMjQuMy05LjItMzMuNSAwLTkuMiA5LjItOS4yIDI0LjMgMCAzMy41TDQ2MC44IDE4OWM5LjIgOS4yIDI0LjMgOS4yIDMzLjUgMCA5LjItOS4yIDkuMi0yNC4zIDAtMzMuNUwzMDMuMyA0My40em0tMjE0LjEgMjE0LjFjLTM1LjQgMzUuNC0zNS40IDkyLjcgMCAxMjguMSAzNS40IDM1LjQgOTIuNyAzNS40IDEyOC4xIDAgMzUuNC0zNS40IDM1LjQtOTIuNyAwLTEyOC4xLTM1LjQtMzUuNC05Mi43LTM1LjQtMTI4LjEgMHptNjUuMiA2NS4yYy0xNS43IDE1LjctMTUuNyA0MSAxMCA1Ni43IDE1LjcgMTUuNyA0MSAxNS43IDU2LjcgMCAxNS43LTE1LjcgMTUuNy00MSAwLTU2LjctMTUuNy0xNS43LTQxLTE1LjctNTYuNyAweiIvPjwvc3ZnPg==" alt="Settings">
+            <span>Settings</span>
         </div>
     </div>
-
-    <div class="window" id="movies-window">
+    
+    <div class="app-window" id="games-window">
         <div class="window-header">
-            <div class="window-title">Movies</div>
-            <div class="window-close" onclick="closeWindow('movies')">×</div>
+            <span class="window-title">Games</span>
+            <button class="close-btn">×</button>
         </div>
         <div class="window-content">
-            <iframe src="https://toustream.movietrunk.com/" frameborder="0" id="movies-frame"></iframe>
-            <button class="fullscreen-button" onclick="toggleFullscreen('movies-frame')">Fullscreen</button>
+            <iframe id="games-frame" src="about:blank"></iframe>
         </div>
     </div>
-
-    <div class="window" id="proxy-window">
+    
+    <div class="app-window" id="movies-window">
         <div class="window-header">
-            <div class="window-title">Proxy</div>
-            <div class="window-close" onclick="closeWindow('proxy')">×</div>
+            <span class="window-title">Movies</span>
+            <button class="close-btn">×</button>
         </div>
         <div class="window-content">
-            <div class="proxy-ui">
-                <input type="text" class="proxy-input" id="proxy-url" placeholder="Enter URL to proxy...">
-                <button class="proxy-button" onclick="proxyUrl()">Go</button>
+            <iframe id="movies-frame" src="about:blank"></iframe>
+        </div>
+    </div>
+    
+    <div class="app-window" id="proxy-window">
+        <div class="window-header">
+            <span class="window-title">Proxy</span>
+            <button class="close-btn">×</button>
+        </div>
+        <div class="window-content">
+            <div id="proxy-start">
+                <div class="proxy-ui">
+                    <input type="text" class="proxy-input" placeholder="Enter URL to proxy...">
+                    <button class="proxy-go">Go</button>
+                </div>
             </div>
-            <button class="back-button hidden" id="back-button" onclick="backToProxy()">Back</button>
-            <iframe src="" frameborder="0" id="proxy-frame" class="hidden"></iframe>
-            <button class="fullscreen-button hidden" id="proxy-fullscreen" onclick="toggleFullscreen('proxy-frame')">Fullscreen</button>
+            <div id="proxy-content" style="display: none;">
+                <button class="proxy-back">Back</button>
+                <iframe id="proxy-frame" src="about:blank"></iframe>
+            </div>
         </div>
     </div>
-
-    <div class="window" id="settings-window">
+    
+    <div class="app-window" id="settings-window">
         <div class="window-header">
-            <div class="window-title">Settings</div>
-            <div class="window-close" onclick="closeWindow('settings')">×</div>
+            <span class="window-title">Settings</span>
+            <button class="close-btn">×</button>
         </div>
         <div class="window-content">
-            <h3>Theme Colors</h3>
-            <div>
-                <label>Background: </label>
-                <input type="color" id="bg-color" value="#121212">
+            <div class="settings-container">
+                <div class="settings-option">
+                    <label for="theme-color">Theme Color</label>
+                    <input type="color" id="theme-color" value="#ff3333">
+                </div>
+                <div class="settings-option">
+                    <label for="bg-color">Background Color</label>
+                    <input type="color" id="bg-color" value="#0a0a0a">
+                </div>
+                <div class="settings-option">
+                    <label for="particle-color">Particle Color</label>
+                    <input type="color" id="particle-color" value="#ff3333">
+                </div>
+                <button class="settings-save">Save Settings</button>
             </div>
-            <div>
-                <label>Accent: </label>
-                <input type="color" id="accent-color" value="#ff2d2d">
-            </div>
-            <button onclick="applyTheme()">Apply</button>
         </div>
     </div>
-
+    
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        // Particles
-        const particles = [];
-        const connections = [];
-        const maxConnections = 50;
-
-        function createParticles() {
-            const desktop = document.getElementById('desktop');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                desktop.appendChild(particle);
-                particles.push({
-                    element: particle,
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5
-                });
-            }
-
-            // Create connections
-            for (let i = 0; i < maxConnections; i++) {
-                const connection = document.createElement('div');
-                connection.className = 'connection';
-                desktop.appendChild(connection);
-                connections.push(connection);
-            }
-
-            animateParticles();
-        }
-
-        function animateParticles() {
-            const mouseX = window.mouseX || window.innerWidth / 2;
-            const mouseY = window.mouseY || window.innerHeight / 2;
-
-            particles.forEach((particle, index) => {
-                // Move particles
-                particle.x += particle.vx;
-                particle.y += particle.vy;
-
-                // Bounce off walls
-                if (particle.x < 0 || particle.x > window.innerWidth) particle.vx *= -1;
-                if (particle.y < 0 || particle.y > window.innerHeight) particle.vy *= -1;
-
-                // Avoid mouse
-                const dx = particle.x - mouseX;
-                const dy = particle.y - mouseY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 100) {
-                    const force = 100 / distance;
-                    particle.x += dx * force * 0.01;
-                    particle.y += dy * force * 0.01;
-                }
-
-                particle.element.style.left = `${particle.x}px`;
-                particle.element.style.top = `${particle.y}px`;
-            });
-
-            // Update connections
-            let connectionIndex = 0;
-            for (let i = 0; i < particles.length && connectionIndex < maxConnections; i++) {
-                for (let j = i + 1; j < particles.length && connectionIndex < maxConnections; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 150) {
-                        const connection = connections[connectionIndex];
-                        connection.style.width = `${distance}px`;
-                        connection.style.left = `${particles[i].x}px`;
-                        connection.style.top = `${particles[i].y}px`;
-                        connection.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
-                        connectionIndex++;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize particles.js
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#ff3333"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#ff3333",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": false,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
                     }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "repulse"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 400,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+            
+            // App icon click handlers
+            document.querySelectorAll('.app-icon').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    const app = this.getAttribute('data-app');
+                    const window = document.getElementById(`${app}-window`);
+                    
+                    // Hide all windows first
+                    document.querySelectorAll('.app-window').forEach(w => {
+                        w.style.display = 'none';
+                    });
+                    
+                    // Show the selected window
+                    window.style.display = 'flex';
+                    
+                    // Load content if needed
+                    if (app === 'games') {
+                        document.getElementById('games-frame').src = `https://159.203.181.211:9191/service/ultraviolet/__uv.html#${encodeURIComponent('https://gnmath.global.ssl.fastly.net/')}`;
+                    } else if (app === 'movies') {
+                        document.getElementById('movies-frame').src = `https://159.203.181.211:9191/service/ultraviolet/__uv.html#${encodeURIComponent('https://toustream.movietrunk.com/')}`;
+                    } else if (app === 'proxy') {
+                        document.getElementById('proxy-start').style.display = 'block';
+                        document.getElementById('proxy-content').style.display = 'none';
+                    }
+                });
+            });
+            
+            // Close button handlers
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.app-window').style.display = 'none';
+                });
+            });
+            
+            // Proxy functionality
+            document.querySelector('.proxy-go').addEventListener('click', function() {
+                const url = document.querySelector('.proxy-input').value;
+                if (url) {
+                    document.getElementById('proxy-start').style.display = 'none';
+                    document.getElementById('proxy-content').style.display = 'flex';
+                    document.getElementById('proxy-frame').src = `https://159.203.181.211:9191/service/ultraviolet/__uv.html#${encodeURIComponent(url)}`;
                 }
-            }
-
-            // Hide unused connections
-            for (let i = connectionIndex; i < maxConnections; i++) {
-                connections[i].style.width = '0';
-            }
-
-            requestAnimationFrame(animateParticles);
-        }
-
-        // Track mouse position
-        document.addEventListener('mousemove', (e) => {
-            window.mouseX = e.clientX;
-            window.mouseY = e.clientY;
-        });
-
-        // Window management
-        function openWindow(type) {
-            document.getElementById(`${type}-window`).style.display = 'flex';
-        }
-
-        function closeWindow(type) {
-            document.getElementById(`${type}-window`).style.display = 'none';
-        }
-
-        // Proxy functionality
-        function proxyUrl() {
-            const url = document.getElementById('proxy-url').value;
-            if (!url) return;
-
-            const frame = document.getElementById('proxy-frame');
-            frame.src = `http://159.203.181.211:9191/${url}`;
-            frame.classList.remove('hidden');
-            document.getElementById('back-button').classList.remove('hidden');
-            document.getElementById('proxy-fullscreen').classList.remove('hidden');
-        }
-
-        function backToProxy() {
-            document.getElementById('proxy-frame').classList.add('hidden');
-            document.getElementById('back-button').classList.add('hidden');
-            document.getElementById('proxy-fullscreen').classList.add('hidden');
-            document.getElementById('proxy-frame').src = '';
-        }
-
-        // Fullscreen functionality
-        function toggleFullscreen(id) {
-            const element = document.getElementById(id);
-            if (!document.fullscreenElement) {
-                element.requestFullscreen().catch(err => {
-                    alert(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+            
+            document.querySelector('.proxy-back').addEventListener('click', function() {
+                document.getElementById('proxy-start').style.display = 'block';
+                document.getElementById('proxy-content').style.display = 'none';
+            });
+            
+            // Settings functionality
+            document.querySelector('.settings-save').addEventListener('click', function() {
+                const themeColor = document.getElementById('theme-color').value;
+                const bgColor = document.getElementById('bg-color').value;
+                const particleColor = document.getElementById('particle-color').value;
+                
+                // Apply theme changes
+                document.querySelectorAll('.window-header, .proxy-go, .settings-save').forEach(el => {
+                    el.style.backgroundColor = themeColor;
                 });
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Theme settings
-        function applyTheme() {
-            const bgColor = document.getElementById('bg-color').value;
-            const accentColor = document.getElementById('accent-color').value;
-            document.body.style.backgroundColor = bgColor;
-            document.querySelectorAll('.icon-img, .window-header, .proxy-button, .fullscreen-button').forEach(el => {
-                el.style.backgroundColor = accentColor;
-            });
-            document.querySelectorAll('.connection').forEach(el => {
-                el.style.backgroundColor = `${accentColor}30`;
-            });
-            document.querySelectorAll('.particle').forEach(el => {
-                el.style.backgroundColor = `${accentColor}B0`;
-            });
-        }
-
-        // Initialize
-        createParticles();
-
-        // Offline functionality
-        window.addEventListener('offline', () => {
-            alert('You are offline. Some features may not work.');
-        });
-
-        // Service worker for offline support
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('ServiceWorker registration successful');
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
+                
+                document.querySelectorAll('.app-window').forEach(el => {
+                    el.style.borderColor = themeColor;
                 });
+                
+                document.body.style.backgroundColor = bgColor;
+                
+                // Update particle colors
+                if (window.pJSDom && window.pJSDom.length > 0) {
+                    const pJS = window.pJSDom[0].pJS;
+                    pJS.particles.color.value = particleColor;
+                    pJS.particles.line_linked.color = particleColor;
+                    pJS.fn.particlesRefresh();
+                }
             });
-        }
+        });
     </script>
 </body>
 </html>
