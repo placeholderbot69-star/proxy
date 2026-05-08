@@ -1,348 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AMONGUSGXMES</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--primary:#dc2626;--primary-hover:#ef4444;--bg:#0a0a0a;--bg-light:#1a1a1a;--bg-card:#141414;--text:#f5f5f5;--text-muted:#a3a3a3;--border:#2a2a2a;--particle-color:#dc2626;--particle-line:rgba(220,38,38,0.15)}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;width:100vw}
-#startScreen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;background:var(--bg);cursor:pointer;user-select:none}
-#startScreen canvas{position:absolute;inset:0;pointer-events:none}
-.start-content{position:relative;z-index:2;text-align:center}
-.start-title{font-family:'Orbitron',sans-serif;font-size:5rem;font-weight:900;letter-spacing:-3px;line-height:1;color:var(--primary)}
-.start-title span{color:var(--text)}
-.hold-bar-wrap{width:200px;height:8px;background:var(--bg-light);border-radius:999px;overflow:hidden;margin:2rem auto 0}
-.hold-bar{height:100%;width:0%;background:var(--primary);border-radius:999px}
-.hold-text{margin-top:1rem;font-size:.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted)}
-.start-sub{margin-top:1.5rem;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);opacity:.5}
-#mainApp{display:none;height:100vh;width:100vw;flex-direction:row;overflow:hidden}
-#mainApp.active{display:flex}
-#bgCanvas{position:fixed;inset:0;pointer-events:none;z-index:0}
-.sidebar{width:72px;height:100%;background:var(--bg-light);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:1.5rem 0;gap:4px;z-index:10;flex-shrink:0}
-.sidebar-logo{width:40px;height:40px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:900;font-size:16px;color:#fff;margin-bottom:1.5rem}
-.sidebar-btn{width:48px;height:48px;border-radius:12px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .2s;position:relative}
-.sidebar-btn:hover{background:rgba(220,38,38,.1);color:var(--primary)}
-.sidebar-btn.active{background:rgba(220,38,38,.15);color:var(--primary)}
-.sidebar-btn.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:24px;background:var(--primary);border-radius:0 3px 3px 0}
-.sidebar-btn svg{width:20px;height:20px}
-.sidebar-btn span{font-size:8px;font-weight:600;letter-spacing:.5px}
-.content-panel{flex:1;overflow-y:auto;overflow-x:hidden;z-index:10;position:relative}
-.panel{display:none;height:100%}.panel.active{display:flex;flex-direction:column}
-.games-header{padding:1.5rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;flex-shrink:0}
-.games-header h2{font-family:'Orbitron',sans-serif;font-size:1.25rem;font-weight:700;color:var(--primary)}
-.search-box{flex:1;max-width:400px;padding:.6rem 1rem;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.85rem;outline:none;transition:border-color .2s}
-.search-box:focus{border-color:var(--primary)}.search-box::placeholder{color:var(--text-muted)}
-.games-grid-wrap{flex:1;overflow-y:auto;padding:1.5rem 2rem}
-.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem}
-.game-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .3s}
-.game-card:hover{transform:translateY(-4px);border-color:var(--primary);box-shadow:0 8px 25px rgba(220,38,38,.15)}
-.game-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--bg-light)}
-.game-card .gn{padding:.75rem;font-size:.8rem;font-weight:600;text-align:center;color:var(--text);min-height:48px;display:flex;align-items:center;justify-content:center}
-.game-card:hover .gn{color:var(--primary)}
-.game-card.featured{border-color:var(--primary)}
-.game-viewer{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;flex-direction:column}
-.game-viewer.active{display:flex}
-.gv-header{background:var(--primary);color:#fff;padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.gv-header h3{font-size:1rem;font-weight:700}
-.gv-controls{display:flex;gap:.5rem}
-.gv-controls button{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:.4rem .8rem;border-radius:8px;cursor:pointer;font-size:.75rem;font-weight:600;transition:all .2s}
-.gv-controls button:hover{background:rgba(255,255,255,.25)}
-.game-iframe{flex:1;border:none;width:100%;background:#000}
-.proxy-container{flex:1;display:flex;flex-direction:column}
-.proxy-bar{padding:1rem 2rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border);flex-shrink:0}
-.proxy-bar label{font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--primary);white-space:nowrap}
-.proxy-url-input{flex:1;padding:.6rem 1rem;background:var(--bg-light);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.85rem;outline:none}
-.proxy-url-input:focus{border-color:var(--primary)}
-.proxy-go-btn{padding:.6rem 1.2rem;background:var(--primary);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:.8rem;cursor:pointer;transition:background .2s}
-.proxy-go-btn:hover{background:var(--primary-hover)}
-.proxy-iframe{flex:1;border:none;width:100%;background:#111}
-.proxy-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;color:var(--text-muted)}
-.proxy-placeholder svg{width:64px;height:64px;opacity:.3}
-.proxy-placeholder p{font-size:.9rem}
-.movies-iframe{flex:1;border:none;width:100%;background:#000}
-.settings-container{padding:2rem;overflow-y:auto}
-.settings-container h2{font-family:'Orbitron',sans-serif;font-size:1.25rem;font-weight:700;color:var(--primary);margin-bottom:2rem}
-.setting-group{margin-bottom:2rem}
-.setting-group h3{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:1px}
-.setting-row{display:flex;align-items:center;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--border)}
-.setting-row label{font-size:.85rem;color:var(--text-muted)}
-.color-input{width:40px;height:32px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;padding:2px}
-.settings-btn{padding:.5rem 1rem;background:var(--bg-light);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.8rem;cursor:pointer;transition:all .2s}
-.settings-btn:hover{border-color:var(--primary);color:var(--primary)}
-.src-btn{font-size:7px;padding:2px 6px;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);cursor:pointer;opacity:.35;transition:all .3s;margin-top:3rem;display:inline-block}
-.src-btn:hover{opacity:1;color:var(--primary);border-color:var(--primary)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:none;align-items:center;justify-content:center;padding:2rem}
-.modal-overlay.active{display:flex}
-.modal-box{background:var(--bg-light);border:1px solid var(--border);border-radius:16px;width:100%;max-width:850px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
-.modal-header{padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.modal-header h3{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--primary)}
-.modal-close{width:32px;height:32px;background:rgba(220,38,38,.1);border:none;border-radius:8px;color:var(--primary);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center}
-.modal-body{flex:1;overflow:auto;padding:1.5rem}
-.modal-body textarea{width:100%;height:350px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Courier New',monospace;font-size:.7rem;padding:1rem;resize:vertical;line-height:1.5}
-.loading-spinner{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text-muted);font-size:.85rem}
-.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin-right:.75rem}
-@keyframes spin{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--primary)}
-@media(max-width:768px){.start-title{font-size:3rem}.sidebar{width:56px}.sidebar-btn{width:40px;height:40px}.sidebar-btn span{display:none}.games-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}.games-header{padding:1rem;flex-wrap:wrap}.games-grid-wrap{padding:1rem}}
-</style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Original Particle Text</title>
 
-<div id="startScreen">
-<canvas id="startCanvas"></canvas>
-<div class="start-content">
-<h1 class="start-title">AMONGUS<br><span>GXMES</span></h1>
-<div class="hold-bar-wrap"><div class="hold-bar" id="holdBar"></div></div>
-<p class="hold-text" id="holdText">HOLD ANYWHERE TO START</p>
-<p class="start-sub">GAMES &bull; PROXY &bull; MOVIES &bull; MORE</p>
-</div>
-</div>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-<div id="mainApp">
-<canvas id="bgCanvas"></canvas>
-<nav class="sidebar">
-<div class="sidebar-logo">A</div>
-<button class="sidebar-btn active" data-tab="games" title="Games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></svg><span>GAMES</span></button>
-<button class="sidebar-btn" data-tab="proxy" title="Proxy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span>PROXY</span></button>
-<button class="sidebar-btn" data-tab="movies" title="Movies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg><span>MOVIES</span></button>
-<button class="sidebar-btn" data-tab="settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>SETTINGS</span></button>
-</nav>
-<div class="content-panel">
-<div class="panel active" id="panelGames">
-<div class="games-header"><h2>GAMES</h2><input type="text" class="search-box" id="gameSearch" placeholder="Search games..."></div>
-<div class="games-grid-wrap"><div class="loading-spinner" id="gamesLoading"><div class="spinner"></div>Loading games...</div><div class="games-grid" id="gamesGrid" style="display:none"></div></div>
-</div>
-<div class="panel" id="panelProxy">
-<div class="proxy-container">
-<div class="proxy-bar"><label>PROXY</label><input type="text" class="proxy-url-input" id="proxyUrl" placeholder="Enter URL to browse..."><button class="proxy-go-btn" id="proxyGo">GO</button></div>
-<div class="proxy-placeholder" id="proxyPlaceholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><p>Enter a URL above to browse through the proxy</p><p style="font-size:.7rem;opacity:.5">Proxy: 41.57.96.181:80</p></div>
-<iframe class="proxy-iframe" id="proxyIframe" style="display:none"></iframe>
-</div>
-</div>
-<div class="panel" id="panelMovies"><iframe class="movies-iframe" id="moviesIframe" src="https://toustream.movietrunk.com/" allowfullscreen></iframe></div>
-<div class="panel" id="panelSettings">
-<div class="settings-container">
-<h2>SETTINGS</h2>
-<div class="setting-group"><h3>Colors</h3>
-<div class="setting-row"><label>Primary Color</label><input type="color" class="color-input" id="sPrimary" value="#dc2626"></div>
-<div class="setting-row"><label>Background</label><input type="color" class="color-input" id="sBg" value="#0a0a0a"></div>
-<div class="setting-row"><label>Card Background</label><input type="color" class="color-input" id="sCardBg" value="#141414"></div>
-<div class="setting-row"><label>Text Color</label><input type="color" class="color-input" id="sText" value="#f5f5f5"></div>
-<div class="setting-row"><label>Particle Color</label><input type="color" class="color-input" id="sParticle" value="#dc2626"></div>
-</div>
-<div class="setting-group"><h3>Actions</h3>
-<div class="setting-row"><label>Reset to Defaults</label><button class="settings-btn" id="resetSettings">Reset</button></div>
-</div>
-<button class="src-btn" id="srcBtn">src</button>
-</div>
-</div>
-</div>
-</div>
+      html, body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family: 'Roboto' !important;
+        color: white;
+        font-size: 9px;
+      }
 
-<div class="game-viewer" id="gameViewer">
-<div class="gv-header"><h3 id="gvTitle">Game</h3><div class="gv-controls"><button id="gvFullscreen">Fullscreen</button><button id="gvNewTab">New Tab</button><button id="gvClose">Close</button></div></div>
-<iframe class="game-iframe" id="gameIframe"></iframe>
-</div>
+      #magic {
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+        display: block;
+        top: 0;
+        left: 0;
+        z-index: -9999;
+      }
 
-<div class="modal-overlay" id="srcModal">
-<div class="modal-box">
-<div class="modal-header"><h3>SOURCE CODE</h3><button class="modal-close" id="srcModalClose">&#10005;</button></div>
-<div class="modal-body">
-<p style="margin-bottom:1rem;font-size:.85rem;color:var(--text-muted)">This project is open source. Copy or download the full source below:</p>
-<textarea id="srcArea" readonly></textarea>
-<div style="margin-top:1rem;display:flex;gap:.5rem">
-<button class="settings-btn" id="copySrcBtn">Copy Code</button>
-<button class="settings-btn" id="dlSrcBtn">Download HTML</button>
-</div>
-</div>
-</div>
-</div>
+      .playground{
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+        display: block;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+      }
 
-<script>
-var COVER_URL="https://cdn.jsdelivr.net/gh/gn-math/covers@main";
-var HTML_URL="https://cdn.jsdelivr.net/npm/gn-math.github.io-main@1.0.4/html-main";
-var ZONES_URL="https://cdn.jsdelivr.net/npm/gn-math.github.io-main@1.0.1/zones.json";
-var games=[],currentGameHtml="",currentGameName="",holdInterval=null,holdStart=0;
+      .bottomPosition{
+        text-align: center;
+        margin-bottom: 50px;
+      }
 
-function initParticles(canvas,pC,lC){
-var ctx=canvas.getContext("2d"),pts=[],mx=-9999,my=-9999,N=70,CD=140,MR=120;
-function rs(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
-function mk(){pts=[];for(var i=0;i<N;i++)pts.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,r:Math.random()*2+.8})}
-function draw(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-for(var i=0;i<pts.length;i++){
-var p=pts[i],dx=p.x-mx,dy=p.y-my,d=Math.sqrt(dx*dx+dy*dy);
-if(d<MR&&d>0){var f=(MR-d)/MR;p.vx+=dx/d*f*.4;p.vy+=dy/d*f*.4}
-p.vx*=.985;p.vy*=.985;p.vx+=(Math.random()-.5)*.015;p.vy+=(Math.random()-.5)*.015;
-p.x+=p.vx;p.y+=p.vy;
-if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
-if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
-ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=pC;ctx.globalAlpha=.6;ctx.fill();ctx.globalAlpha=1;
-for(var j=i+1;j<pts.length;j++){
-var p2=pts[j],cx=p.x-p2.x,cy=p.y-p2.y,cd=Math.sqrt(cx*cx+cy*cy);
-if(cd<CD){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p2.x,p2.y);ctx.strokeStyle=lC;ctx.globalAlpha=1-cd/CD;ctx.lineWidth=.5;ctx.stroke();ctx.globalAlpha=1}
-}}return requestAnimationFrame(draw)}
-rs();mk();var aid=draw();
-var onMv=function(e){mx=e.clientX;my=e.clientY};
-var onLv=function(){mx=-9999;my=-9999};
-var onRs=function(){rs();mk()};
-canvas.addEventListener("mousemove",onMv);canvas.addEventListener("mouseleave",onLv);window.addEventListener("resize",onRs);
-return{destroy:function(){cancelAnimationFrame(aid);canvas.removeEventListener("mousemove",onMv);canvas.removeEventListener("mouseleave",onLv);window.removeEventListener("resize",onRs)}};
-}
+      .minText{
+        font-size: 14px;
+      }
 
-(function(){
-var sc=document.getElementById("startScreen"),cv=document.getElementById("startCanvas"),hb=document.getElementById("holdBar"),ht=document.getElementById("holdText");
-var ps=initParticles(cv,getComputedStyle(document.documentElement).getPropertyValue("--particle-color").trim(),getComputedStyle(document.documentElement).getPropertyValue("--particle-line").trim());
-function sH(e){e.preventDefault();holdStart=Date.now();holdInterval=setInterval(function(){var p=Math.min((Date.now()-holdStart)/1000,1);hb.style.width=p*100+"%";ht.textContent="HOLD TO ENTER...";if(p>=1){clearInterval(holdInterval);ps.destroy();sc.style.display="none";launchApp()}},16)}
-function eH(){if(holdInterval)clearInterval(holdInterval);hb.style.width="0%";ht.textContent="HOLD ANYWHERE TO START"}
-sc.addEventListener("mousedown",sH);sc.addEventListener("mouseup",eH);sc.addEventListener("mouseleave",eH);
-sc.addEventListener("touchstart",sH);sc.addEventListener("touchend",eH);
-})();
+      a {
+        color: white;
+        font-size: 12px;
+        text-decoration: none;
+      }
+    </style>
+  </head>
 
-function launchApp(){
-document.getElementById("mainApp").classList.add("active");
-initParticles(document.getElementById("bgCanvas"),getComputedStyle(document.documentElement).getPropertyValue("--particle-color").trim(),getComputedStyle(document.documentElement).getPropertyValue("--particle-line").trim());
-document.querySelectorAll(".sidebar-btn").forEach(function(b){b.addEventListener("click",function(){
-var tab=b.dataset.tab;
-document.querySelectorAll(".sidebar-btn").forEach(function(x){x.classList.remove("active")});
-b.classList.add("active");
-document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active")});
-document.getElementById("panel"+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add("active");
-})});
-loadGames();initProxy();initSettings();initSourceModal();
-}
+  <body>
+    <!-- SHADERS -->
+    <script type="x-shader/x-vertex" id="vertexshader">
+      attribute float size;
+      attribute vec3 customColor;
+      varying vec3 vColor;
 
-function makeFallback(){
-var n=["Drive Mad","Ovo","Doodle Jump","Snow Rider 3D","Moto X3M","Moto X3M 2","Moto X3M 3","Moto X3M 4","Moto X3M 5","Moto X3M Pool Party","Moto X3M Spooky Land","Moto X3M Winter","Basket Random","Basketball Stars","Soccer Random","Boxing Random","Volley Random","Tunnel Rush","Tunnel Rush 2","Run 3","Rooftop Snipers","Rooftop Snipers 2","Getaway Shootout","Gun Mayhem","Gun Mayhem 2","Gun Mayhem Redux","Slope","Slope 2","Slope 3","1v1.LOL","Just Fall.LOL","Basketball Legends","Football Masters","Tank Trouble","Super Smash Flash","Happy Wheels","Geometry Dash","Friday Night Funkin","Among Us","Minecraft Classic","Cookie Clicker","2048","Flappy Bird","Snake","Tetris","Pac-Man","Crossy Road","Temple Run 2","Subway Surfers","Stickman Hook","Vex 5","Vex 6","Vex 7","Fireboy & Watergirl","Fireboy & Watergirl 2","Fireboy & Watergirl 3","Fireboy & Watergirl 4","Fireboy & Watergirl 5","Fireboy & Watergirl 6","Duck Life","Duck Life 2","Duck Life 3","Duck Life 4","Papa's Pizzeria","Papa's Burgeria","Papa's Freezeria","World's Hardest Game","World's Hardest Game 2","Drift Hunters","Madalin Stunt Cars 2","Shell Shockers","Krunker","Bonk.io","Slither.io","Hole.io","Paper.io 2","Agar.io","Crazy Cattle 3D","Eggy Car","Tiny Fishing","Merge Cyber Racers","Merge Round Racers","Monster Tracks","Stack Bump 3D","Merge Fruit","Idle Startup Tycoon","Idle Mining Empire","Idle Light City","Merge to Million","Candy Jump","Swingo","Bouncy Motors","Real Cars in City","Cyber Cars Punk Racing","Stock Car Hero","Wheely","Wheely 2","Wheely 3","Wheely 4","Wheely 5","Wheely 6","Wheely 7","Wheely 8","Learn to Fly","Learn to Fly 2","Learn to Fly 3","Learn to Fly Idle","Papa's Cupcakeria","Papa's Hot Doggeria","Papa's Wingeria","Papa's Donuteria","Papa's Cheeseria","Papa's Bakeria","Papa's Sushiria","Papa's Pancakeria","Papa's Pastaria","Papa's Taco Mia","Rabbit Samurai","Rabbit Samurai 2","Duck Life Adventure","Duck Life Battle","Duck Life Space","Rolly Vortex","Rolling Sky","Color Tunnel","Run 1","Run 2","Bob the Robber","Bob the Robber 2","Bob the Robber 3","Bob the Robber 4","Bob the Robber 5","Parking Fury","Parking Fury 2","Parking Fury 3","Parking Fury 4","Crazy Cars","Car Drawing Physics","Rocket Soccer Derby","Blumgi Rocket","Blumgi Ball","Blumgi Castle","Blumgi Slime","Blumgi Brain","Blumgi Bloom"];
-return n.map(function(name,i){return{id:i+1,name:name,url:HTML_URL+"/"+(i+1)+".html",cover:COVER_URL+"/"+(i+1)+".webp",author:"gn-math",featured:i===0||name==="Crazy Cattle 3D"}});
-}
+      void main() {
+        vColor = customColor;
+        vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+        gl_PointSize = size * ( 300.0 / -mvPosition.z );
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    </script>
 
-async function loadGames(){
-var grid=document.getElementById("gamesGrid"),loading=document.getElementById("gamesLoading");
-try{var r=await fetch(ZONES_URL+"?t="+Date.now());games=await r.json()}catch(e){console.warn("Fallback games");games=makeFallback()}
-renderGames(games);loading.style.display="none";grid.style.display="grid";
-document.getElementById("gameSearch").addEventListener("input",function(e){
-var q=e.target.value.toLowerCase();renderGames(games.filter(function(g){return g.name.toLowerCase().indexOf(q)!==-1}));
-});
-}
+    <script type="x-shader/x-fragment" id="fragmentshader">
+      uniform vec3 color;
+      uniform sampler2D pointTexture;
 
-function renderGames(list){
-var grid=document.getElementById("gamesGrid");grid.innerHTML="";
-list.forEach(function(g){
-var card=document.createElement("div");card.className="game-card"+(g.featured?" featured":"");
-var img=document.createElement("img");img.src=g.cover;img.alt=g.name;img.loading="lazy";
-img.onerror=function(){this.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Crect width='160' height='160' fill='%231a1a1a'/%3E%3Ctext x='80' y='85' text-anchor='middle' fill='%23dc2626' font-size='12' font-family='sans-serif'%3E"+encodeURIComponent(g.name)+"%3C/text%3E%3C/svg%3E"};
-var nm=document.createElement("div");nm.className="gn";nm.textContent=g.name;
-card.appendChild(img);card.appendChild(nm);
-card.addEventListener("click",function(){openGame(g)});
-grid.appendChild(card);
-});
-}
+      varying vec3 vColor;
 
-function openGame(g){
-var viewer=document.getElementById("gameViewer"),iframe=document.getElementById("gameIframe"),title=document.getElementById("gvTitle");
-title.textContent=g.name;currentGameName=g.name;
-var url=g.url;
-if(url.indexOf(HTML_URL)===0||url.indexOf("http")===0){
-fetch(url+"?t="+Date.now()).then(function(r){return r.text()}).then(function(html){
-currentGameHtml=html;
-try{var doc=iframe.contentDocument||iframe.contentWindow.document;doc.open();doc.write(html);doc.close()}
-catch(e){iframe.srcdoc=html}
-viewer.classList.add("active");
-}).catch(function(){iframe.src=url;viewer.classList.add("active")});
-}else{iframe.src=url;viewer.classList.add("active")}
-}
+      void main() {
+        gl_FragColor = vec4( color * vColor, 1.0 );
+        gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+      }
+    </script>
 
-document.getElementById("gvClose").addEventListener("click",function(){
-var v=document.getElementById("gameViewer"),f=document.getElementById("gameIframe");
-v.classList.remove("active");setTimeout(function(){f.src="about:blank";f.srcdoc=""},100);
-});
-document.getElementById("gvFullscreen").addEventListener("click",function(){
-var f=document.getElementById("gameIframe");
-if(f.requestFullscreen)f.requestFullscreen();
-else if(f.webkitRequestFullscreen)f.webkitRequestFullscreen();
-});
-document.getElementById("gvNewTab").addEventListener("click",function(){
-if(currentGameHtml){var w=window.open("about:blank","_blank");if(w){w.document.open();w.document.write(currentGameHtml);w.document.close()}}
-});
+    <div id="magic"></div>
 
-function initProxy(){
-var input=document.getElementById("proxyUrl"),goBtn=document.getElementById("proxyGo"),iframe=document.getElementById("proxyIframe"),ph=document.getElementById("proxyPlaceholder");
-function loadUrl(){
-var url=input.value.trim();if(!url)return;
-if(url.indexOf("http")!==0)url="https://"+url;
-var pUrl="http://41.57.96.181:80/"+url.replace(/^https?:\/\//,"");
-iframe.src=pUrl;iframe.style.display="block";ph.style.display="none";
-}
-goBtn.addEventListener("click",loadUrl);
-input.addEventListener("keydown",function(e){if(e.key==="Enter")loadUrl()});
-}
+    <!-- THREE.JS + FONTLOADER -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/loaders/FontLoader.js"></script>
 
-function lighten(hex,amt){
-var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-r=Math.min(255,Math.max(0,Math.round(r+(255-r)*amt)));
-g=Math.min(255,Math.max(0,Math.round(g+(255-g)*amt)));
-b=Math.min(255,Math.max(0,Math.round(b+(255-b)*amt)));
-return"#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
-}
+    <script>
+      /* ---------------- ORIGINAL CODE YOU PROVIDED ---------------- */
 
-function applySettings(s){
-var r=document.documentElement.style;
-r.setProperty("--primary",s.primary);
-r.setProperty("--primary-hover",lighten(s.primary,.15));
-r.setProperty("--bg",s.bg);
-r.setProperty("--bg-light",lighten(s.bg,.08));
-r.setProperty("--bg-card",s.cardBg);
-r.setProperty("--text",s.text);
-r.setProperty("--text-muted",lighten(s.text,-.3));
-r.setProperty("--border",lighten(s.bg,.15));
-r.setProperty("--particle-color",s.particle);
-var pr=parseInt(s.particle.slice(1,3),16),pg=parseInt(s.particle.slice(3,5),16),pb=parseInt(s.particle.slice(5,7),16);
-r.setProperty("--particle-line","rgba("+pr+","+pg+","+pb+",0.15)");
-}
+      const preload = () => {
 
-function initSettings(){
-var saved=localStorage.getItem("amongusgxmes-settings");
-if(saved){try{var s=JSON.parse(saved);applySettings(s);
-document.getElementById("sPrimary").value=s.primary;document.getElementById("sBg").value=s.bg;
-document.getElementById("sCardBg").value=s.cardBg;document.getElementById("sText").value=s.text;
-document.getElementById("sParticle").value=s.particle}catch(e){}}
+        let manager = new THREE.LoadingManager();
+        manager.onLoad = function() {
+          const environment = new Environment( typo, particle );
+        }
 
-var ids=["sPrimary","sBg","sCardBg","sText","sParticle"];
-ids.forEach(function(id){document.getElementById(id).addEventListener("input",function(){
-var s={primary:document.getElementById("sPrimary").value,bg:document.getElementById("sBg").value,
-cardBg:document.getElementById("sCardBg").value,text:document.getElementById("sText").value,
-particle:document.getElementById("sParticle").value};
-applySettings(s);localStorage.setItem("amongusgxmes-settings",JSON.stringify(s));
-})});
+        var typo = null;
+        const loader = new THREE.FontLoader( manager );
+        const font = loader.load(
+          'https://res.cloudinary.com/dydre7amr/raw/upload/v1612950355/font_zsd4dr.json',
+          function ( font ) { typo = font; }
+        );
 
-document.getElementById("resetSettings").addEventListener("click",function(){
-var d={primary:"#dc2626",bg:"#0a0a0a",cardBg:"#141414",text:"#f5f5f5",particle:"#dc2626"};
-applySettings(d);document.getElementById("sPrimary").value=d.primary;document.getElementById("sBg").value=d.bg;
-document.getElementById("sCardBg").value=d.cardBg;document.getElementById("sText").value=d.text;
-document.getElementById("sParticle").value=d.particle;localStorage.removeItem("amongusgxmes-settings");
-});
-}
+        const particle = new THREE.TextureLoader( manager )
+          .load('https://res.cloudinary.com/dfvtkoboz/image/upload/v1605013866/particle_a64uzf.png');
 
-function initSourceModal(){
-var modal=document.getElementById("srcModal"),area=document.getElementById("srcArea");
-document.getElementById("srcBtn").addEventListener("click",function(){
-area.value=document.documentElement.outerHTML;modal.classList.add("active");
-});
-document.getElementById("srcModalClose").addEventListener("click",function(){modal.classList.remove("active")});
-modal.addEventListener("click",function(e){if(e.target===modal)modal.classList.remove("active")});
-document.getElementById("copySrcBtn").addEventListener("click",function(){
-area.select();document.execCommand("copy");alert("Source code copied to clipboard!");
-});
-document.getElementById("dlSrcBtn").addEventListener("click",function(){
-var blob=new Blob([document.documentElement.outerHTML],{type:"text/html"});
-var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="amongusgxmes.html";a.click();URL.revokeObjectURL(a.href);
-});
-}
-</script>
-</body>
-</html>
+      }
+
+      if ( document.readyState === "complete" ||
+           (document.readyState !== "loading" && !document.documentElement.doScroll))
+        preload ();
+      else
+        document.addEventListener("DOMContentLoaded", preload );
+
+      class Environment {
+
+        constructor( font, particle ){
+          this.font = font;
+          this.particle = particle;
+          this.container = document.querySelector( '#magic' );
+          this.scene = new THREE.Scene();
+          this.createCamera();
+          this.createRenderer();
+          this.setup()
+          this.bindEvents();
+        }
+
+        bindEvents(){
+          window.addEventListener( 'resize', this.onWindowResize.bind( this ));
+        }
+
+        setup(){
+          this.createParticles = new CreateParticles(
+            this.scene, this.font, this.particle, this.camera, this.renderer
+          );
+        }
+
+        render() {
+          this.createParticles.render()
+          this.renderer.render( this.scene, this.camera )
+        }
+
+        createCamera() {
+          this.camera = new THREE.PerspectiveCamera(
+            65,
+            this.container.clientWidth / this.container.clientHeight,
+            1,
+            10000
+          );
+          this.camera.position.set( 0,0, 100 );
+        }
+
+        createRenderer() {
+          this.renderer = new THREE.WebGLRenderer();
+          this.renderer.setSize(
+            this.container.clientWidth,
+            this.container.clientHeight
+          );
+          this.renderer.setPixelRatio( Math.min( window.devicePixelRatio, 2));
+          this.renderer.outputEncoding = THREE.sRGBEncoding;
+          this.container.appendChild( this.renderer.domElement );
+          this.renderer.setAnimationLoop(() => { this.render() })
+        }
+
+        onWindowResize(){
+          this.camera.aspect =
+            this.container.clientWidth / this.container.clientHeight;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setSize(
+            this.container.clientWidth,
+            this.container.clientHeight
+          );
+        }
+      }
+
+      class CreateParticles {
+
+          constructor( scene, font, particleImg, camera, renderer ) {
+              this.scene = scene;
+              this.font = font;
+              this.particleImg = particleImg;
+              this.camera = camera;
+              this.renderer = renderer;
+
+              this.raycaster = new THREE.Raycaster();
+              this.mouse = new THREE.Vector2(-200, 200);
+              this.colorChange = new THREE.Color();
+              this.buttom = false;
+
+              this.data = {
+                  text: 'AMONGUS\nGXMES!!!!!',
+                  amount: 1500,
+                  particleSize: 1,
+                  particleColor: 0xffffff,
+                  textSize: 16,
+                  area: 250,
+                  ease: .05,
+              }
+
+              this.setup();
+              this.bindEvents();
+          }
+
+          setup(){
+              const geometry = new THREE.PlaneGeometry(
+            this.visibleWidthAtZDepth( 100, this.camera ),
+            this.visibleHeightAtZDepth( 100, this.camera )
+          );
+              const material = new THREE.MeshBasicMaterial({
+            color: 0x00ff00,
+            transparent: true
+          });
+              this.planeArea = new THREE.Mesh( geometry, material );
+              this.planeArea.visible = false;
+              this.createText();
+          }
+
+          bindEvents() {
+              document.addEventListener( 'mousedown', this.onMouseDown.bind( this ));
+              document.addEventListener( 'mousemove', this.onMouseMove.bind( this ));
+              document.addEventListener( 'mouseup', this.onMouseUp.bind( this ));
+          }
+
+          onMouseDown(event){
+              this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+              this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+              const vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 0.5);
+              vector.unproject( this.camera );
+              const dir = vector.sub( this.camera.position ).normalize();
+              const distance = - this.camera.position.z / dir.z;
+              this.currenPosition = this.camera.position.clone().add(
+            dir.multiplyScalar( distance )
+          );
+
+              this.buttom = true;
+              this.data.ease = .01;
+          }
+
+          onMouseUp(){
+              this.buttom = false;
+              this.data.ease = .05;
+          }
+
+          onMouseMove(event){
+            this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+          }
+
+          render(){
+              const time = ((.001 * performance.now())%12)/12;
+              const zigzagTime = (1 + (Math.sin( time * 2 * Math.PI )))/6;
+
+              this.raycaster.setFromCamera( this.mouse, this.camera );
+              const intersects = this.raycaster.intersectObject( this.planeArea );
+
+              if ( intersects.length > 0 ) {
+
+                  const pos = this.particles.geometry.attributes.position;
+                  const copy = this.geometryCopy.attributes.position;
+                  const coulors = this.particles.geometry.attributes.customColor;
+                  const size = this.particles.geometry.attributes.size;
+
+                  const mx = intersects[ 0 ].point.x;
+                  const my = intersects[ 0 ].point.y;
+                  const mz = intersects[ 0 ].point.z;
+
+                  for ( var i = 0, l = pos.count; i < l; i++) {
+
+                      const initX = copy.getX(i);
+                      const initY = copy.getY(i);
+                      const initZ = copy.getZ(i);
+
+                      let px = pos.getX(i);
+                      let py = pos.getY(i);
+                      let pz = pos.getZ(i);
+
+                      this.colorChange.setHSL( .5, 1 , 1 )
+                      coulors.setXYZ( i,
+                  this.colorChange.r,
+                  this.colorChange.g,
+                  this.colorChange.b
+                )
+                      coulors.needsUpdate = true;
+
+                      size.array[ i ]  = this.data.particleSize;
+                      size.needsUpdate = true;
+
+                      let dx = mx - px;
+                      let dy = my - py;
+                      const dz = mz - pz;
+
+                      const mouseDistance = this.distance( mx, my, px, py )
+                      let d = ( dx = mx - px ) * dx + ( dy = my - py ) * dy;
+                      const f = - this.data.area/d;
+
+                      if( this.buttom ){
+
+                          const t = Math.atan2( dy, dx );
+                          px -= f * Math.cos( t );
+                          py -= f * Math.sin( t );
+
+                          this.colorChange.setHSL( .5 + zigzagTime, 1.0 , .5 )
+                          coulors.setXYZ( i,
+                    this.colorChange.r,
+                    this.colorChange.g,
+                    this.colorChange.b
+                  )
+                          coulors.needsUpdate = true;
+
+                          if ((px > (initX + 70)) || ( px < (initX - 70)) ||
+                      (py > (initY + 70) || ( py < (initY - 70)))){
+
+                              this.colorChange.setHSL( .15, 1.0 , .5 )
+                              coulors.setXYZ( i,
+                      this.colorChange.r,
+                      this.colorChange.g,
+                      this.colorChange.b
+                    )
+                              coulors.needsUpdate = true;
+                          }
+
+                      }else{
+
+                          if( mouseDistance < this.data.area ){
+
+                              if(i%5==0){
+
+                                  const t = Math.atan2( dy, dx );
+                                  px -= .03 * Math.cos( t );
+                                  py -= .03 * Math.sin( t );
+
+                                  this.colorChange.setHSL( .15 , 1.0 , .5 )
+                                  coulors.setXYZ( i,
+                        this.colorChange.r,
+                        this.colorChange.g,
+                        this.colorChange.b
+                      )
+                                  coulors.needsUpdate = true;
+
+                                  size.array[ i ]  =  this.data.particleSize /1.2;
+                                  size.needsUpdate = true;
+
+                              }else{
+
+                                  const t = Math.atan2( dy, dx );
+                                  px += f * Math.cos( t );
+                                  py += f * Math.sin( t );
+
+                                  pos.setXYZ( i, px, py, pz );
+                                  pos.needsUpdate = true;
+
+                                  size.array[ i ]  = this.data.particleSize * 1.3 ;
+                                  size.needsUpdate = true;
+                              }
+
+                              if ((px > (initX + 10)) || ( px < (initX - 10)) ||
+                        (py > (initY + 10) || ( py < (initY - 10)))){
+
+                                  this.colorChange.setHSL( .15, 1.0 , .5 )
+                                  coulors.setXYZ( i,
+                        this.colorChange.r,
+                        this.colorChange.g,
+                        this.colorChange.b
+                      )
+                                  coulors.needsUpdate = true;
+
+                                  size.array[ i ]  = this.data.particleSize /1.8;
+                                  size.needsUpdate = true;
+                              }
+                          }
+                      }
+
+                      px += ( initX  - px ) * this.data.ease;
+                      py += ( initY  - py ) * this.data.ease;
+                      pz += ( initZ  - pz ) * this.data.ease;
+
+                      pos.setXYZ( i, px, py, pz );
+                      pos.needsUpdate = true;
+                  }
+              }
+          }
+
+          createText(){
+              let thePoints = [];
+
+              let shapes = this.font.generateShapes(
+            this.data.text,
+            this.data.textSize
+          );
+              let geometry = new THREE.ShapeGeometry( shapes );
+              geometry.computeBoundingBox();
+
+              const xMid = - 0.5 * (
+            geometry.boundingBox.max.x - geometry.boundingBox.min.x
+          );
+              const yMid = (
+            geometry.boundingBox.max.y - geometry.boundingBox.min.y
+          ) / 2.85;
+
+              geometry.center();
+
+              let holeShapes = [];
+
+              for ( let q = 0; q < shapes.length; q ++ ) {
+                  let shape = shapes[ q ];
+                  if ( shape.holes && shape.holes.length > 0 ) {
+                      for ( let  j = 0; j < shape.holes.length; j ++ ) {
+                          let  hole = shape.holes[ j ];
+                          holeShapes.push( hole );
+                      }
+                  }
+              }
+              shapes.push.apply( shapes, holeShapes );
+
+              let colors = [];
+              let sizes = [];
+
+              for ( let  x = 0; x < shapes.length; x ++ ) {
+                  let shape = shapes[ x ];
+                  const amountPoints =
+              ( shape.type == 'Path') ? this.data.amount/2 : this.data.amount;
+
+                  let points = shape.getSpacedPoints( amountPoints );
+
+                  points.forEach( ( element ) => {
+                      const a = new THREE.Vector3( element.x, element.y, 0 );
+                      thePoints.push( a );
+                      colors.push(
+                this.colorChange.r,
+                this.colorChange.g,
+                this.colorChange.b
+              );
+                      sizes.push( 1 )
+                  });
+              }
+
+              let geoParticles = new THREE.BufferGeometry().setFromPoints( thePoints );
+              geoParticles.translate( xMid, yMid, 0 );
+
+              geoParticles.setAttribute(
+            'customColor',
+            new THREE.Float32BufferAttribute( colors, 3 )
+          );
+              geoParticles.setAttribute(
+            'size',
+            new THREE.Float32BufferAttribute( sizes, 1)
+          );
+
+              const material = new THREE.ShaderMaterial({
+                  uniforms: {
+                      color: { value: new THREE.Color( 0xffffff ) },
+                      pointTexture: { value: this.particleImg }
+                  },
+                  vertexShader: document.getElementById( 'vertexshader' ).textContent,
+                  fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+                  blending: THREE.AdditiveBlending,
+                  depthTest: false,
+                  transparent: true,
+              });
+
+              this.particles = new THREE.Points( geoParticles, material );
+              this.scene.add( this.particles );
+
+              this.geometryCopy = new THREE.BufferGeometry();
+              this.geometryCopy.copy( this.particles.geometry );
+          }
+
+          visibleHeightAtZDepth ( depth, camera ) {
+            const cameraOffset = camera.position.z;
+            if ( depth < cameraOffset ) depth -= cameraOffset;
+            else depth += cameraOffset;
+
+            const vFOV = camera.fov * Math.PI / 180;
+            return 2 * Math.tan( vFOV / 2 ) * Math.abs( depth );
+          }
+
+          visibleWidthAtZDepth( depth, camera ) {
+            const height = this.visibleHeightAtZDepth( depth, camera );
+            return height * camera.aspect;
+          }
+
+          distance (x1, y1, x2, y2){
+              return Math.sqrt(
+              Math.pow((x1 - x2), 2) +
+              Math.pow((y1 - y2), 2)
+            );
+          }
+      }
+    </script>
+  </body>
+</html> 
+this code is for the start screen on when site is loaded launch the start screen after holding the mouse  on the start screen for 1 second a sidebar will pop up andi it will stay there and on the side bar there will the apps will be a browser using create a backend and frontend on the server make the proxy scramjet and the proxy server is 41.57.96.181:80 the proxy will have a text box in the middle to put the website you want to load when a website is loaded put the proxy bar to the top. there will be Games add all of them they are going to be from https://gnmath.global.ssl.fastly.net/ when a game clicked instead of showing the website only show the game make it so you can full screen the games add all the games and icons. There will be settings to change the colors and other stuff the websites colors will be red and black there will be particles that float around and connect but the particles float away from the mouse in a radius. The website is called AMONGUSGXMES. The icon for the games will be a gaming controller the settings will be a cog, and a proxy will be a ball there will also be movies launched by the scramjet proxy  https://toustream.movietrunk.com/ . Make the code html
